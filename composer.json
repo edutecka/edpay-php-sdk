@@ -1,0 +1,43 @@
+{
+    "name": "edutecka/edpay-php-sdk",
+    "description": "SDK oficial da plataforma EDPay para PHP e Laravel. Pagamentos multi-gateway, checkouts, links de cobrança e webhooks com tarifa plana de 6% em Meticais (MZN).",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Equipa de Engenharia EDPay",
+            "email": "dev@edutecka.com",
+            "homepage": "https://edutecka.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "ext-json": "*",
+        "ext-curl": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5 || ^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "EDPay\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "EDPay\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "EDPay\\Laravel\\EdpayServiceProvider"
+            ],
+            "aliases": {
+                "Edpay": "EDPay\\Laravel\\Facades\\Edpay"
+            }
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
