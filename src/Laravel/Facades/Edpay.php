@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static \EDPay\Resources\PaymentResource payments()
+ * @method static \EDPay\Resources\InvoiceResource invoices()
+ * @method static \EDPay\Resources\SubscriptionResource subscriptions()
  * @method static \EDPay\Resources\CheckoutResource checkout()
  * @method static \EDPay\Resources\PaymentLinkResource paymentLinks()
  * @method static \EDPay\Resources\CustomerResource customers()
