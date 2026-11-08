@@ -7,6 +7,8 @@ use EDPay\Resources\PaymentResource;
 use EDPay\Resources\CheckoutResource;
 use EDPay\Resources\PaymentLinkResource;
 use EDPay\Resources\CustomerResource;
+use EDPay\Resources\InvoiceResource;
+use EDPay\Resources\SubscriptionResource;
 use EDPay\Resources\WebhookResource;
 
 class EDPayClient
@@ -24,6 +26,8 @@ class EDPayClient
     protected ?CheckoutResource $checkout = null;
     protected ?PaymentLinkResource $paymentLinks = null;
     protected ?CustomerResource $customers = null;
+    protected ?InvoiceResource $invoices = null;
+    protected ?SubscriptionResource $subscriptions = null;
     protected ?WebhookResource $webhooks = null;
 
     public function __construct(
@@ -70,6 +74,22 @@ class EDPayClient
             $this->customers = new CustomerResource($this);
         }
         return $this->customers;
+    }
+
+    public function invoices(): InvoiceResource
+    {
+        if ($this->invoices === null) {
+            $this->invoices = new InvoiceResource($this);
+        }
+        return $this->invoices;
+    }
+
+    public function subscriptions(): SubscriptionResource
+    {
+        if ($this->subscriptions === null) {
+            $this->subscriptions = new SubscriptionResource($this);
+        }
+        return $this->subscriptions;
     }
 
     public function webhooks(): WebhookResource
