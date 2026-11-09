@@ -21,7 +21,7 @@ Composer installs the SDK and registers its autoloader. You can then use the `ED
 
 ## Create a payment
 
-Keep both API keys on your server. Use sandbox credentials while testing. Set `EDPAY_API_URL` to the API base URL provided for your environment; the constructor's environment argument does not select or change the API host. If `EDPAY_API_URL` is unset, the client uses `https://api-pay.edutecka.com`.
+Keep both API keys on your server. Use test keys for sandbox requests. The SDK sends requests to `https://api-pay.edutecka.com` by default; only override the base URL when EDPay provides a different host for your account.
 
 ```php
 <?php
@@ -48,7 +48,7 @@ $payment = $client->payments()->create([
 var_export($payment);
 ```
 
-The SDK sends `X-EDPay-Public-Key` and `X-EDPay-Private-Key` headers and adds `Idempotency-Key` when the optional key is supplied. Do not expose the private key in browser or mobile-app code. Amounts are in minor units; for MZN, `50000` represents MZN 500.00. The `method` value is gateway-agnostic and should be an identifier supported by your account.
+The SDK sends `X-EDPay-Public-Key` and `X-EDPay-Private-Key` headers and adds `Idempotency-Key` when the optional key is supplied. Do not expose the private key in browser or mobile-app code. Amounts are in minor units; for MZN, `50000` represents MZN 500.00. The `method` value is dynamic; use an identifier returned by `GET /v1/public/payment-methods` or supported by your account. Include `phone` only when required by the selected method.
 
 ## Laravel integration
 
@@ -66,11 +66,10 @@ Set server-side values in the application environment (do not commit `.env`):
 EDPAY_PUBLIC_KEY=pk_test_...
 EDPAY_PRIVATE_KEY=sk_test_...
 EDPAY_ENVIRONMENT=sandbox
-EDPAY_API_URL=https://sandbox-api.example
 EDPAY_WEBHOOK_SECRET=whsec_...
 ```
 
-Set `EDPAY_API_URL` to the sandbox API base URL supplied for your account. The example hostname above is a placeholder, not an EDPay endpoint. A Laravel service can use the facade as follows:
+Configure the API keys for the environment you want to use. The API base URL defaults to `https://api-pay.edutecka.com`. A Laravel service can use the facade as follows:
 
 ```php
 use EDPay\Laravel\Facades\Edpay;
@@ -84,6 +83,18 @@ $payment = Edpay::checkout()->charge([
 ```
 
 `checkout()->charge()` sends a request to `POST /v1/payment-checkout`. For other operations, the client exposes `payments()`, `checkout()`, `paymentLinks()`, `customers()`, `invoices()`, `subscriptions()`, and `webhooks()` resources.
+
+## Available operations
+
+- Payments: `create`, `get`, `list`, `events`
+- Checkout: `charge`, `createSession`, `getSession`
+- Payment links: `create`, `get`, `list`, `deactivate`
+- Customers: `create`, `get`, `list`
+- Invoices: `create`, `get`, `list`, `finalize`, `void`
+- Subscriptions: `create`, `get`, `list`, `pause`, `resume`
+- Webhooks: `constructEvent`
+
+Resource methods return decoded PHP arrays. Use the returned payment ID to retrieve the payment or its events, and verify a webhook before processing its event.
 
 ## Verify webhooks
 
