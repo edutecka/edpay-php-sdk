@@ -11,14 +11,14 @@ The EDPay PHP SDK is a server-side client for the EDPay payment platform. It pro
 
 ## Install with Composer
 
-The package is not currently listed on Packagist. Add the GitHub repository as a Composer VCS source, then require the package without a version constraint so Composer selects the latest stable release:
+From your application's root directory, add the SDK repository and install the package with Composer:
 
 ```bash
 composer config repositories.edpay vcs https://github.com/edutecka/edpay-php-sdk
 composer require edutecka/edpay-php-sdk
 ```
 
-Composer installs the package and registers its PSR-4 autoloader. Once the package is registered on Packagist, the VCS configuration can be omitted.
+Composer installs the SDK and registers its autoloader. You can then use the `EDPay\EDPayClient` class in your PHP application.
 
 ## Create a payment
 
