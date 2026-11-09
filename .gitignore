@@ -1,0 +1,12 @@
+.DS_Store
+*.log
+vendor/
+node_modules/
+__pycache__/
+*.py[cod]
+target/
+bin/
+obj/
+.idea/
+.vscode/
+*.env
