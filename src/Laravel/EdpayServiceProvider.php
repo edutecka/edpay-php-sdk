@@ -19,11 +19,11 @@ class EdpayServiceProvider extends ServiceProvider
             $config = $app['config']['edpay'] ?? [];
 
             return new EDPayClient(
-                publicKey: $config['public_key'] ?? '',
-                privateKey: $config['private_key'] ?? '',
-                environment: $config['environment'] ?? 'sandbox',
-                baseUri: $config['base_uri'] ?? null,
-                timeout: (int) ($config['timeout'] ?? 60)
+                $config['public_key'] ?? '',
+                $config['private_key'] ?? '',
+                $config['environment'] ?? 'sandbox',
+                $config['base_uri'] ?? null,
+                (int) ($config['timeout'] ?? 60)
             );
         });
 
