@@ -35,15 +35,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Configurações Financeiras Padrão
+    | Moeda Padrão
     |--------------------------------------------------------------------------
     |
-    | Tarifa plana da plataforma: 6,00% (600 bps) na moeda Metical (MZN).
-    | Prazo de liquidação: 2 a 7 dias úteis após a transacção.
+    | Moeda padrão usada nas configurações do SDK. Taxas e condições
+    | financeiras são determinadas pela EDPay e podem ser actualizadas.
     |
     */
     'currency' => env('EDPAY_CURRENCY', 'MZN'),
-    'platform_fee_rate' => 0.06,
 
     /*
     |--------------------------------------------------------------------------

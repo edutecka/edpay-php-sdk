@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('trans_id', 64)->nullable()->index(); // ID da transação no gateway
             $table->decimal('amount', 15, 2); // Montante bruto (ex.: 1500.00)
             $table->string('currency', 3)->default('MZN'); // Código ISO (MZN padrão)
-            $table->decimal('fee', 15, 2)->default(0.00); // Tarifa plana 6%
+            $table->decimal('fee', 15, 2)->default(0.00); // Comissão devolvida pela API EDPay
             $table->decimal('net_amount', 15, 2)->default(0.00); // Valor líquido a receber
             $table->string('method', 32); // mpesa, emola, card, apple_pay, google_pay, bank_transfer
             $table->string('status', 32)->index(); // pending, pending_prompt, succeeded, failed, cancelled
