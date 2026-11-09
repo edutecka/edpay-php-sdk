@@ -9,17 +9,16 @@ The EDPay PHP SDK is a server-side client for the EDPay payment platform. It pro
 - Composer
 - Laravel integration: an existing Laravel application (Laravel classes are provided by this repository; Laravel is not a core SDK dependency)
 
-## Get the SDK
+## Install with Composer
 
-Clone the repository and install its Composer dependencies and autoloader:
+The package is not currently listed on Packagist. Add the GitHub repository as a Composer VCS source, then require its `main` branch:
 
 ```bash
-git clone https://github.com/edutecka/edpay-php-sdk.git
-cd edpay-php-sdk
-composer install
+composer config repositories.edpay vcs https://github.com/edutecka/edpay-php-sdk
+composer require edutecka/edpay-php-sdk:dev-main
 ```
 
-The repository includes Composer package metadata (`edutecka/edpay-php-sdk`). This README does not assume that a Packagist release is available. To use the SDK from another application, make this checkout available through that application's Composer path/VCS repository configuration or its autoloader.
+Composer installs the package and registers its PSR-4 autoloader. Once the package is published on Packagist, installation can use `composer require edutecka/edpay-php-sdk` without the VCS repository configuration.
 
 ## Create a payment
 
