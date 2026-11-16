@@ -21,6 +21,8 @@ Composer installs the SDK and registers its autoloader. You can then use the `ED
 
 ## Create a payment
 
+Every partner API request requires both `EDPAY_PUBLIC_KEY` (`pk_test_` or `pk_live_`) and `EDPAY_PRIVATE_KEY` (`sk_test_` or `sk_live_`) from the same environment. The SDK rejects missing, blank, or mismatched key pairs when creating the client. Public catalog requests and buyer-facing checkout requests authenticated by a checkout token do not use the partner key pair; never put the private key in browser code. The Laravel service provider also refuses to resolve the client if either key is unset or blank.
+
 Keep both API keys on your server. Use test keys for sandbox requests. The SDK sends requests to `https://api-pay.edutecka.com` by default; only override the base URL when EDPay provides a different host for your account.
 
 ```php

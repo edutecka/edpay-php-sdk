@@ -16,7 +16,7 @@ use EDPay\Resources\PublicResource;
 
 class EDPayClient
 {
-    public const VERSION = '1.5.0';
+    public const VERSION = '1.5.1';
     public const DEFAULT_BASE_URI = 'https://api-pay.edutecka.com';
 
     protected string $publicKey;
@@ -46,6 +46,14 @@ class EDPayClient
         $this->publicKey = trim($publicKey);
         $this->privateKey = trim($privateKey);
         $this->environment = strtolower(trim($environment));
+        $publicMode = preg_match('/^pk_(test|live)_[a-fA-F0-9]{24}$/D', $this->publicKey, $publicMatch) ? $publicMatch[1] : null;
+        $privateMode = preg_match('/^sk_(test|live)_[a-fA-F0-9]{64}$/D', $this->privateKey, $privateMatch) ? $privateMatch[1] : null;
+        if ($publicMode === null || $privateMode === null) {
+            throw new \InvalidArgumentException('A valid pk_test_/pk_live_ public key (24 hex characters) and sk_test_/sk_live_ private key (64 hex characters) are required.');
+        }
+        if ($publicMode !== $privateMode) {
+            throw new \InvalidArgumentException('EDPay public and private keys must use the same environment (test or live).');
+        }
         $this->baseUri = rtrim($baseUri ?? self::DEFAULT_BASE_URI, '/');
         $this->timeout = $timeout;
     }

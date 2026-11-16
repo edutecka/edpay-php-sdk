@@ -1,6 +1,6 @@
 {
     "name": "edutecka/edpay-php-sdk",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "description": "Official EDPay SDK for PHP and Laravel with multi-gateway payments, checkout, payment links, invoicing, customers, and webhook verification.",
     "type": "library",
     "license": "MIT",

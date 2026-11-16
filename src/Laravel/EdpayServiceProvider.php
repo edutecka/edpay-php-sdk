@@ -17,10 +17,15 @@ class EdpayServiceProvider extends ServiceProvider
 
         $this->app->singleton('edpay', function ($app) {
             $config = $app['config']['edpay'] ?? [];
+            $publicKey = $config['public_key'] ?? null;
+            $privateKey = $config['private_key'] ?? null;
+            if (!is_string($publicKey) || trim($publicKey) === '' || !is_string($privateKey) || trim($privateKey) === '') {
+                throw new \InvalidArgumentException('EDPay partner API requires both EDPAY_PUBLIC_KEY and EDPAY_PRIVATE_KEY to be configured.');
+            }
 
             return new EDPayClient(
-                $config['public_key'] ?? '',
-                $config['private_key'] ?? '',
+                $publicKey,
+                $privateKey,
                 $config['environment'] ?? 'sandbox',
                 $config['base_uri'] ?? null,
                 (int) ($config['timeout'] ?? 60)

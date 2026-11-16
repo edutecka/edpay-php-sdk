@@ -7,7 +7,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | Get your keys in the EDPay Console (https://pay.edutecka.com/dashboard/api-keys).
-    | Use pk_test_ and sk_test_ in development, and pk_live_ and sk_live_ in production.
+    | Both keys are required for partner API calls and must belong to the same environment:
+    | use pk_test_ with sk_test_ in development, or pk_live_ with sk_live_ in production.
     |
     */
     'public_key' => env('EDPAY_PUBLIC_KEY', ''),
