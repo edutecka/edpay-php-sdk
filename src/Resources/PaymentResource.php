@@ -58,4 +58,10 @@ class PaymentResource
     {
         return $this->client->request('POST', '/v1/payment-checkout', $params, $idempotencyKey);
     }
+
+    /** Start a child method attempt on the same payment after the latest attempt definitively failed. */
+    public function createAttempt(string $paymentId, array $params, string $idempotencyKey): array
+    {
+        return $this->client->request('POST', '/v1/payments/' . rawurlencode($paymentId) . '/attempts', $params, $idempotencyKey);
+    }
 }

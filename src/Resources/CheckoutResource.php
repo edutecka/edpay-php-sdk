@@ -53,6 +53,12 @@ class CheckoutResource
         return $this->client->request('GET', '/v1/checkout/sessions/' . rawurlencode($token) . '/payments/' . rawurlencode($paymentId), [], null, false);
     }
 
+    /** Switch method for the same session payment after its latest attempt definitively failed. */
+    public function createSessionPaymentAttempt(string $token, string $paymentId, array $params, string $idempotencyKey): array
+    {
+        return $this->client->request('POST', '/v1/checkout/sessions/' . rawurlencode($token) . '/payments/' . rawurlencode($paymentId) . '/attempts', $params, $idempotencyKey, false);
+    }
+
     public function getPaymentLink(string $linkId): array
     {
         return $this->client->request('GET', '/v1/checkout/payment-links/' . rawurlencode($linkId), [], null, false);
@@ -66,5 +72,11 @@ class CheckoutResource
     public function getPaymentLinkPayment(string $linkId, string $paymentId): array
     {
         return $this->client->request('GET', '/v1/checkout/payment-links/' . rawurlencode($linkId) . '/payments/' . rawurlencode($paymentId), [], null, false);
+    }
+
+    /** Switch method for the same payment-link payment after its latest attempt definitively failed. */
+    public function createPaymentLinkPaymentAttempt(string $linkId, string $paymentId, array $params, string $idempotencyKey): array
+    {
+        return $this->client->request('POST', '/v1/checkout/payment-links/' . rawurlencode($linkId) . '/payments/' . rawurlencode($paymentId) . '/attempts', $params, $idempotencyKey, false);
     }
 }
