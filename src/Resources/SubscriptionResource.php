@@ -14,23 +14,15 @@ class SubscriptionResource
     }
 
     /**
-     * Cria uma série recorrente / subscrição periódica.
+     * Create a recurring series / subscription.
      */
-    public function create(array $params, ?string $idempotencyKey = null): array
+    public function create(array $params, string $idempotencyKey): array
     {
         return $this->client->request('POST', '/v1/invoice-series', $params, $idempotencyKey);
     }
 
     /**
-     * Obtém os detalhes de uma subscrição por ID.
-     */
-    public function get(string $seriesId): array
-    {
-        return $this->client->request('GET', '/v1/invoice-series/' . rawurlencode($seriesId));
-    }
-
-    /**
-     * Lista séries de subscrição recorrentes.
+     * List recurring subscription series.
      */
     public function list(array $query = []): array
     {
@@ -40,7 +32,7 @@ class SubscriptionResource
     }
 
     /**
-     * Pausa temporariamente a emissão de ciclos de uma subscrição.
+     * Temporarily pause the issuance of subscription cycles.
      */
     public function pause(string $seriesId): array
     {
@@ -48,7 +40,7 @@ class SubscriptionResource
     }
 
     /**
-     * Retoma uma subscrição pausada.
+     * Resume a paused subscription.
      */
     public function resume(string $seriesId): array
     {

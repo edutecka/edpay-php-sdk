@@ -14,15 +14,15 @@ class PaymentLinkResource
     }
 
     /**
-     * Cria um link de pagamento reutilizável com montante fixo em minor units (centavos).
+     * Create a reusable payment link with a fixed amount in minor currency units (cents).
      */
-    public function create(array $params, ?string $idempotencyKey = null): array
+    public function create(array $params, string $idempotencyKey): array
     {
         return $this->client->request('POST', '/v1/payment-links', $params, $idempotencyKey);
     }
 
     /**
-     * Obtém detalhes de um link de pagamento.
+     * Retrieve payment link details.
      */
     public function get(string $linkId): array
     {
@@ -30,7 +30,7 @@ class PaymentLinkResource
     }
 
     /**
-     * Lista links de pagamento criados no ambiente actual.
+     * List payment links created in the current environment.
      */
     public function list(array $query = []): array
     {
@@ -40,10 +40,10 @@ class PaymentLinkResource
     }
 
     /**
-     * Desativa um link de pagamento ativo.
+     * Deactivate an active payment link.
      */
-    public function deactivate(string $linkId): array
+    public function deactivate(string $linkId, string $idempotencyKey): array
     {
-        return $this->client->request('POST', '/v1/payment-links/' . rawurlencode($linkId) . '/deactivate');
+        return $this->client->request('POST', '/v1/payment-links/' . rawurlencode($linkId) . '/deactivate', [], $idempotencyKey);
     }
 }

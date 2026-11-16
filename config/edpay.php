@@ -3,11 +3,11 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Credenciais da Plataforma EDPay (Server-to-Server)
+    | EDPay Platform Credentials (Server-to-Server)
     |--------------------------------------------------------------------------
     |
-    | Obtenha as suas chaves no Console EDPay (https://pay.edutecka.com/dashboard/api-keys).
-    | Utilize pk_test_ e sk_test_ em desenvolvimento e pk_live_ e sk_live_ em produção.
+    | Get your keys in the EDPay Console (https://pay.edutecka.com/dashboard/api-keys).
+    | Use pk_test_ and sk_test_ in development, and pk_live_ and sk_live_ in production.
     |
     */
     'public_key' => env('EDPAY_PUBLIC_KEY', ''),
@@ -15,41 +15,41 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Ambiente de Operação
+    | Operating Environment
     |--------------------------------------------------------------------------
     |
-    | Valores suportados: 'sandbox' (teste) ou 'production' (live).
+    | Supported values: 'sandbox' (test) or 'production' (live).
     |
     */
     'environment' => env('EDPAY_ENVIRONMENT', 'sandbox'),
 
     /*
     |--------------------------------------------------------------------------
-    | Segredo para Validação de Webhooks HMAC
+    | HMAC Webhook Validation Secret
     |--------------------------------------------------------------------------
     |
-    | Chave secreta de assinatura para verificação do cabeçalho X-EDPay-Signature.
+    | Signing secret used to verify the timestamped Payment-Signature header.
     |
     */
     'webhook_secret' => env('EDPAY_WEBHOOK_SECRET', ''),
 
     /*
     |--------------------------------------------------------------------------
-    | Moeda Padrão
+    | Default Currency
     |--------------------------------------------------------------------------
     |
-    | Moeda padrão usada nas configurações do SDK. Taxas e condições
-    | financeiras são determinadas pela EDPay e podem ser actualizadas.
+    | Default currency used by the SDK configuration. Fees and financial terms
+    | are determined by EDPay and may be updated.
     |
     */
     'currency' => env('EDPAY_CURRENCY', 'MZN'),
 
     /*
     |--------------------------------------------------------------------------
-    | URL Base e Timeout da API
+    | API Base URL and Timeout
     |--------------------------------------------------------------------------
     |
-    | Endereço oficial dos serviços EDPay e limite de espera por chamada cURL.
+    | EDPay services URL and maximum wait time for each cURL request.
     |
     */
     'base_uri' => env('EDPAY_API_URL', 'https://api-pay.edutecka.com'),
@@ -57,10 +57,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Rota de Webhook Automática do Laravel
+    | Automatic Laravel Webhook Route
     |--------------------------------------------------------------------------
     |
-    | Quando activada, o pacote regista automaticamente a rota para receber webhooks.
+    | When enabled, the package automatically registers the route for receiving webhooks.
     |
     */
     'webhook' => [

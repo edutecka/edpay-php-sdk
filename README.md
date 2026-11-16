@@ -1,6 +1,6 @@
 # EDPay PHP SDK
 
-The EDPay PHP SDK is a server-side client for the EDPay payment platform. It provides resources for payments, checkout, payment links, customers, invoices, subscriptions, and webhook signature verification.
+The EDPay PHP SDK is a server-side client for the EDPay payment platform. It provides resources for payments, checkout, payment links, customers, invoices and invoice series, wallets, foreign-exchange quotes, webhook management, and webhook signature verification.
 
 ## Requirements
 
@@ -43,12 +43,22 @@ $payment = $client->payments()->create([
     'reference' => 'ORDER-10492',
     'description' => 'Example order',
     'phone' => '+25884xxxxxxx',
-], 'ORDER-10492'); // optional idempotency key
+], 'ORDER-10492-CREATE-1'); // required idempotency key for payment creation
 
 var_export($payment);
 ```
 
-The SDK sends `X-EDPay-Public-Key` and `X-EDPay-Private-Key` headers and adds `Idempotency-Key` when the optional key is supplied. Do not expose the private key in browser or mobile-app code. Amounts are in minor units; for MZN, `50000` represents MZN 500.00. The `method` value is dynamic; use an identifier returned by `GET /v1/public/payment-methods` or supported by your account. Include `phone` only when required by the selected method.
+Partner API requests send `X-EDPay-Public-Key` and `X-EDPay-Private-Key` headers. Public catalog and token-based checkout requests omit them. The SDK adds `Idempotency-Key` for writes that require one. Do not expose the private key in browser or mobile-app code. Amounts are in minor units; for MZN, `50000` represents MZN 500.00. The `method` value is dynamic; use an identifier returned by `GET /v1/public/payment-methods` or supported by your account. `phone` is required only when the selected method requires a phone number; tokenized methods send their instrument through `channel`.
+
+Populate a payment-method selector from the public catalog and pass the user's selected `code` to `payments()->create()`; the SDK does not hard-code gateway identifiers:
+
+```php
+$catalog = $client->paymentMethods()->listPaymentMethods();
+$availableMethods = array_filter(
+    $catalog['data']['payment_methods'] ?? [],
+    static fn (array $method): bool => !empty($method['enabled'])
+);
+```
 
 ## Laravel integration
 
@@ -78,27 +88,54 @@ $payment = Edpay::checkout()->charge([
     'amount_minor' => 50000,
     'currency' => 'MZN',
     'method' => config('services.edpay.method'),
+    'phone' => '+25884xxxxxxx',
     'reference' => 'ORDER-10492',
-]);
+], 'ORDER-10492-CREATE-1');
 ```
 
-`checkout()->charge()` sends a request to `POST /v1/payment-checkout`. For other operations, the client exposes `payments()`, `checkout()`, `paymentLinks()`, `customers()`, `invoices()`, `subscriptions()`, and `webhooks()` resources.
+`checkout()->charge()` sends a request to `POST /v1/payment-checkout`. For other operations, the client exposes `payments()`, `checkout()`, `paymentLinks()`, `customers()`, `invoices()`, `subscriptions()`, `webhooks()`, `wallets()`, `fx()`, and `paymentMethods()` resources.
+
+`checkout()->charge()` and `payments()->createCheckout()` are legacy aliases for creating a payment intent; hosted checkout uses payment-link creation followed by `checkout()->createSession()`.
 
 ## Available operations
 
-- Payments: `create`, `get`, `list`, `events`
-- Checkout: `charge`, `createSession`, `getSession`
+- Payments: `create`, `createCheckout`, `get`, `list`, `events`, `attempts`
+- Checkout: `charge`, `createSession`, `getSession`, frame policy, and session or payment-link payment operations
 - Payment links: `create`, `get`, `list`, `deactivate`
-- Customers: `create`, `get`, `list`
+- Customers: `create`, `get`, `list`, `update`
 - Invoices: `create`, `get`, `list`, `finalize`, `void`
-- Subscriptions: `create`, `get`, `list`, `pause`, `resume`
-- Webhooks: `constructEvent`
+- Invoice series (`subscriptions` resource): `create`, `list`, `pause`, `resume`
+- Webhooks: endpoint create, list, update, disable, delete, delivery list/detail/retry, and `constructEvent`
+- Wallets: list, get, balance, entries; FX quotes; public payment-method catalog.
+- Contacts: `EDPay\ContactFormatter::normalize`, `format`, `addCountryPrefix`, `removeCountryPrefix`, and `isValid`.
 
 Resource methods return decoded PHP arrays. Use the returned payment ID to retrieve the payment or its events, and verify a webhook before processing its event.
 
+## Format and validate a phone contact
+
+Contact helpers default to Mozambique's calling code (`258`) and nine national digits. Provide country and selected-method rules when different formatting or prefix requirements apply:
+
+```php
+use EDPay\ContactFormatter;
+
+$method = getenv('EDPAY_METHOD') ?: '';
+$rules = ContactFormatter::optionsForMethod($method);
+$input = getenv('CUSTOMER_PHONE') ?: '';
+if ($rules !== null && !ContactFormatter::isValid($input, $rules)) {
+    throw new InvalidArgumentException('Phone number is invalid for the selected method.');
+}
+if ($rules !== null) {
+    $phoneForRequest = ContactFormatter::normalize($input, $rules);
+    $phoneForDisplay = ContactFormatter::format($input, $rules);
+    $nationalDigits = ContactFormatter::removeCountryPrefix($input, $rules);
+}
+```
+
+`ContactFormatter::optionsForMethod($method)` returns known rules for `emola` (national `86`/`87`, output `national`) and `mpesa` (`84`/`85`, output `country-code`, meaning `258` followed by national digits). It returns `null` for unknown or non-phone methods; use account-provided rules for other phone methods and skip phone validation for tokenized methods. Rules remain configurable.
+
 ## Verify webhooks
 
-Read the raw request body and the `X-EDPay-Signature` header, then verify the signature with the webhook secret before updating an order or account:
+Read the raw request body and the `Payment-Signature` header, then verify the timestamped signature with the webhook secret before updating an order or account. EDPay signs `timestamp + "." + rawBody`; verification rejects timestamps outside the default five-minute window:
 
 ```php
 $event = $client->webhooks()->constructEvent(
@@ -108,7 +145,11 @@ $event = $client->webhooks()->constructEvent(
 );
 ```
 
-The verifier uses HMAC-SHA256 and throws `EDPay\Exceptions\SignatureVerificationException` if verification fails or the payload is invalid. Register the webhook URL and required events in the EDPay dashboard.
+The verifier uses HMAC-SHA256 and throws `EDPay\Exceptions\SignatureVerificationException` if verification fails or the payload is invalid. Register the webhook URL and required events in the EDPay dashboard. The Laravel route registered by the service provider reads `Payment-Signature` and uses the configured `EDPAY_WEBHOOK_SECRET`.
+
+The verified event envelope is returned as a PHP array. Its shape is `id: string`, `object: "event"`, `type` (one of `payment.created`, `payment.updated`, `payment.succeeded`, `payment.failed`, `payment.cancelled`, or `payment.reconciliation_required`), `created_at: string`, and `data`. Payment data contains `object: "payment"`, string `id`, `reference`, nullable `payment_link_id`, `trans_id`, and `method`; status is one of `pending`, `processing`, `unknown`, `succeeded`, `failed`, or `cancelled`; `amount_minor` is an integer and currency is `MZN`, `USD`, or `EUR`. `platform_fee_minor` and `receiver_net_minor` are optional integers, as are reconciliation fields `reconciliation_status` (`manual_review`) and `reconciliation_code` (string). The verifier returns the decoded array only after signature validation.
+
+The public support-chat route streams server-sent events and is not exposed by this release's JSON request helpers.
 
 ## Documentation
 

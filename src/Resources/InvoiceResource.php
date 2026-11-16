@@ -14,15 +14,15 @@ class InvoiceResource
     }
 
     /**
-     * Cria uma fatura com itens e prazo de vencimento.
+     * Create an invoice with items and a due date.
      */
-    public function create(array $params, ?string $idempotencyKey = null): array
+    public function create(array $params, string $idempotencyKey): array
     {
         return $this->client->request('POST', '/v1/invoices', $params, $idempotencyKey);
     }
 
     /**
-     * Obtém os detalhes de uma fatura por ID.
+     * Retrieve invoice details by ID.
      */
     public function get(string $invoiceId): array
     {
@@ -30,7 +30,7 @@ class InvoiceResource
     }
 
     /**
-     * Lista faturas com filtros opcionais.
+     * List invoices with optional filters.
      */
     public function list(array $query = []): array
     {
@@ -40,7 +40,7 @@ class InvoiceResource
     }
 
     /**
-     * Finaliza e emite a fatura, gerando o link de checkout para liquidação.
+     * Finalize and issue the invoice, generating a checkout link for settlement.
      */
     public function finalize(string $invoiceId, ?string $idempotencyKey = null): array
     {
@@ -48,7 +48,7 @@ class InvoiceResource
     }
 
     /**
-     * Anula uma fatura emitida.
+     * Void an issued invoice.
      */
     public function void(string $invoiceId): array
     {

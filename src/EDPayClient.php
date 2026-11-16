@@ -10,10 +10,13 @@ use EDPay\Resources\CustomerResource;
 use EDPay\Resources\InvoiceResource;
 use EDPay\Resources\SubscriptionResource;
 use EDPay\Resources\WebhookResource;
+use EDPay\Resources\FxResource;
+use EDPay\Resources\WalletResource;
+use EDPay\Resources\PublicResource;
 
 class EDPayClient
 {
-    public const VERSION = '1.0.0';
+    public const VERSION = '1.4.0';
     public const DEFAULT_BASE_URI = 'https://api-pay.edutecka.com';
 
     protected string $publicKey;
@@ -29,6 +32,9 @@ class EDPayClient
     protected ?InvoiceResource $invoices = null;
     protected ?SubscriptionResource $subscriptions = null;
     protected ?WebhookResource $webhooks = null;
+    protected ?FxResource $fx = null;
+    protected ?WalletResource $wallets = null;
+    protected ?PublicResource $paymentMethods = null;
 
     public function __construct(
         string $publicKey,
@@ -95,9 +101,24 @@ class EDPayClient
     public function webhooks(): WebhookResource
     {
         if ($this->webhooks === null) {
-            $this->webhooks = new WebhookResource();
+            $this->webhooks = new WebhookResource($this);
         }
         return $this->webhooks;
+    }
+
+    public function fx(): FxResource
+    {
+        return $this->fx ??= new FxResource($this);
+    }
+
+    public function wallets(): WalletResource
+    {
+        return $this->wallets ??= new WalletResource($this);
+    }
+
+    public function paymentMethods(): PublicResource
+    {
+        return $this->paymentMethods ??= new PublicResource($this);
     }
 
     public function getPublicKey(): string
@@ -116,20 +137,22 @@ class EDPayClient
     }
 
     /**
-     * Executa requisição HTTP autenticada contra a API da EDPay.
+     * Execute an authenticated HTTP request to the EDPay API.
      *
      * @throws EDPayException
      */
-    public function request(string $method, string $path, array $data = [], ?string $idempotencyKey = null): array
+    public function request(string $method, string $path, array $data = [], ?string $idempotencyKey = null, bool $authenticated = true): array
     {
         $url = $this->baseUri . '/' . ltrim($path, '/');
 
         $headers = [
             'Accept: application/json',
-            'X-EDPay-Public-Key: ' . $this->publicKey,
-            'X-EDPay-Private-Key: ' . $this->privateKey,
             'User-Agent: EDPay-PHP-SDK/' . self::VERSION,
         ];
+        if ($authenticated) {
+            $headers[] = 'X-EDPay-Public-Key: ' . $this->publicKey;
+            $headers[] = 'X-EDPay-Private-Key: ' . $this->privateKey;
+        }
 
         if ($idempotencyKey !== null) {
             $headers[] = 'Idempotency-Key: ' . $idempotencyKey;
@@ -157,7 +180,7 @@ class EDPayClient
 
         if ($curlErrno !== 0) {
             throw new EDPayException(
-                "Falha na comunicação de rede com a API EDPay: {$curlError}",
+                "Network communication with the EDPay API failed: {$curlError}",
                 $curlErrno,
                 'network_error',
                 0
@@ -168,7 +191,7 @@ class EDPayClient
 
         if ($httpCode >= 400) {
             $errorCode = $decoded['error']['code'] ?? 'api_error';
-            $message = $decoded['error']['message'] ?? "Erro HTTP {$httpCode} retornado pela API EDPay.";
+            $message = $decoded['error']['message'] ?? "HTTP {$httpCode} error returned by the EDPay API.";
             throw new EDPayException($message, $httpCode, $errorCode, $httpCode, $decoded);
         }
 

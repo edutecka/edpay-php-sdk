@@ -14,15 +14,15 @@ class PaymentResource
     }
 
     /**
-     * Cria uma intenção de pagamento no EDPay.
+     * Create a payment intent in EDPay.
      */
-    public function create(array $params, ?string $idempotencyKey = null): array
+    public function create(array $params, string $idempotencyKey): array
     {
         return $this->client->request('POST', '/v1/payments', $params, $idempotencyKey);
     }
 
     /**
-     * Consulta os detalhes de um pagamento por identificador.
+     * Retrieve payment details by ID.
      */
     public function get(string $paymentId): array
     {
@@ -30,7 +30,7 @@ class PaymentResource
     }
 
     /**
-     * Lista pagamentos com filtros opcionais.
+     * List payments with optional filters.
      */
     public function list(array $query = []): array
     {
@@ -40,10 +40,22 @@ class PaymentResource
     }
 
     /**
-     * Obtém o histórico de eventos de ciclo de vida do pagamento.
+     * Retrieve a payment's lifecycle event history.
      */
     public function events(string $paymentId): array
     {
         return $this->client->request('GET', '/v1/payments/' . rawurlencode($paymentId) . '/events');
+    }
+
+    /** Retrieve sanitized dispatch attempt summaries for a payment. */
+    public function attempts(string $paymentId): array
+    {
+        return $this->client->request('GET', '/v1/payments/' . rawurlencode($paymentId) . '/attempts');
+    }
+
+    /** Legacy alias for creating a payment intent through /v1/payment-checkout. */
+    public function createCheckout(array $params, string $idempotencyKey): array
+    {
+        return $this->client->request('POST', '/v1/payment-checkout', $params, $idempotencyKey);
     }
 }
