@@ -40,11 +40,12 @@ return [
     | API Base URL and Timeout
     |--------------------------------------------------------------------------
     |
-    | EDPay services URL and maximum wait time for each cURL request.
+    | EDPay API URL and maximum wait time for each cURL request. The 90-second
+    | default leaves room for the 80-second API wait and 60-second provider flow.
     |
     */
     'base_uri' => env('EDPAY_API_URL', 'https://api-pay.edutecka.com'),
-    'timeout' => (int) env('EDPAY_TIMEOUT', 60),
+    'timeout' => (int) env('EDPAY_TIMEOUT', 90),
 
     /*
     |--------------------------------------------------------------------------

@@ -37,7 +37,7 @@ class EDPayClient
         string $publicKey,
         string $privateKey,
         ?string $baseUri = null,
-        int $timeout = 60
+        int $timeout = 90
     ) {
         $this->publicKey = trim($publicKey);
         $this->privateKey = trim($privateKey);

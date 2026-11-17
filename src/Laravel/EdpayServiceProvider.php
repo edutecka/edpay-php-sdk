@@ -28,7 +28,7 @@ class EdpayServiceProvider extends ServiceProvider
                 $publicKey,
                 $privateKey,
                 $config['base_uri'] ?? null,
-                (int) ($config['timeout'] ?? 60)
+                (int) ($config['timeout'] ?? 90)
             );
             $client->setLocalPaymentStore(new DatabasePaymentStore());
             return $client;

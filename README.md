@@ -101,7 +101,7 @@ Use `listCheckouts($paymentId)` to read private executions, public/link executio
 
 ### M-Pesa and e-Mola PIN confirmation
 
-For `mpesa` and `emola` calls to `privateCheckout`, set a 60-second confirmation window and ask the buyer to approve the phone prompt and enter the PIN. The API returns `202 Accepted` when the execution is queued; it does not wait for PIN entry or confirm payment. Keep the payment pending and wait for a verified webhook or poll `retrieve(paymentId)` / `listCheckouts(paymentId)` for the final status. If no confirmation arrives within 60 seconds, continue reconciliation; do not resubmit while the execution is pending or unknown.
+For `method: "mpesa"` or `"emola"`, the provider's 60-second PIN window starts only after the Master delivers the charge. The API's 80-second `private-checkout` deadline starts with the API request, so validation, queueing, and dispatch latency already consume it; it does not wait another 80 seconds after the provider window starts. It returns HTTP `200` with a terminal attempt or `202` if the result is still pending, processing, or unknown when the deadline expires. The SDK transport timeout defaults to 90 seconds; keep a custom timeout above 80 seconds. If the caller disconnects, durable processing continues; configured webhook endpoints receive the event when the payment result is confirmed. You can also query `GET /v1/payments/{id}` and `GET /v1/payments/{id}/checkouts`. Do not resubmit while the attempt is pending or unknown.
 
 ## Function reference
 
