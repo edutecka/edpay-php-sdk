@@ -3,9 +3,8 @@
 namespace EDPay;
 
 use EDPay\Exceptions\EDPayException;
+use EDPay\LocalPaymentStore;
 use EDPay\Resources\PaymentResource;
-use EDPay\Resources\CheckoutResource;
-use EDPay\Resources\PaymentLinkResource;
 use EDPay\Resources\CustomerResource;
 use EDPay\Resources\InvoiceResource;
 use EDPay\Resources\SubscriptionResource;
@@ -26,8 +25,6 @@ class EDPayClient
     protected int $timeout;
 
     protected ?PaymentResource $payments = null;
-    protected ?CheckoutResource $checkout = null;
-    protected ?PaymentLinkResource $paymentLinks = null;
     protected ?CustomerResource $customers = null;
     protected ?InvoiceResource $invoices = null;
     protected ?SubscriptionResource $subscriptions = null;
@@ -35,6 +32,7 @@ class EDPayClient
     protected ?FxResource $fx = null;
     protected ?WalletResource $wallets = null;
     protected ?PublicResource $paymentMethods = null;
+    protected ?LocalPaymentStore $localPaymentStore = null;
 
     public function __construct(
         string $publicKey,
@@ -66,20 +64,16 @@ class EDPayClient
         return $this->payments;
     }
 
-    public function checkout(): CheckoutResource
-    {
-        if ($this->checkout === null) {
-            $this->checkout = new CheckoutResource($this);
-        }
-        return $this->checkout;
-    }
+    public function setLocalPaymentStore(?LocalPaymentStore $store): void { $this->localPaymentStore = $store; }
 
-    public function paymentLinks(): PaymentLinkResource
+    public function saveLocalPayment(array $payment): void { if ($this->localPaymentStore !== null) $this->localPaymentStore->save($payment); }
+
+    public function findLocalPaymentByReference(string $reference): ?array
     {
-        if ($this->paymentLinks === null) {
-            $this->paymentLinks = new PaymentLinkResource($this);
+        if ($this->localPaymentStore === null) {
+            throw new \LogicException('Local payment lookup requires the Laravel EDPay database store.');
         }
-        return $this->paymentLinks;
+        return $this->localPaymentStore->findByReference($reference);
     }
 
     public function customers(): CustomerResource

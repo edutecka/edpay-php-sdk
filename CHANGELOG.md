@@ -1,18 +1,18 @@
 # Changelog
 
-## 1.5.1
+## 1.5.1 · pre-release updates
 
-- Require a valid public/private API key pair from the same environment before creating the client.
+- Add the unified payment parent and child checkout operations for private API, hosted checkout, and link checkout.
+- Add opaque-token buyer routes and checkout history on the parent payment.
+- Keep the local Laravel payment lookup separate from the remote API retrieval.
 - Reject Laravel client resolution when either API key is missing or blank.
 
 ## 1.5.0
 
-- Add child payment-attempt methods for server payments and hosted checkout sessions/payment links. Attempts reuse the payment ID, amount, and reference.
-- Keep method attempts idempotent and document when a failed, processing, or unknown result allows a new attempt.
+- Improve payment method handling and idempotent payment requests.
 
 ## 1.4.0
 
 - Add partner resources for payments, customers, payment links, invoices and invoice series, FX, wallets, webhooks, and the public payment-method catalog.
 - Add hosted checkout sessions, configurable contact helpers, and method presets for supported phone methods.
 - Keep public payment-method catalog and token-based checkout requests unauthenticated so private keys are not sent to public routes; session creation remains authenticated.
-- Align payment inputs with the current partner schema and retain `createCheckout` as a legacy alias for the payment-intent endpoint.

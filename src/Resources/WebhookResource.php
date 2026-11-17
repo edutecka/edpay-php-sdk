@@ -16,43 +16,43 @@ class WebhookResource
 
     public function listEndpoints(): array
     {
-        return $this->client->request('GET', '/v1/webhook-endpoints');
+        return $this->client->request('GET', '/v1/webhooks/endpoints');
     }
 
     public function createEndpoint(array $params, string $idempotencyKey): array
     {
-        return $this->client->request('POST', '/v1/webhook-endpoints', $params, $idempotencyKey);
+        return $this->client->request('POST', '/v1/webhooks/endpoints', $params, $idempotencyKey);
     }
 
     public function updateEndpoint(string $endpointId, array $params): array
     {
-        return $this->client->request('PATCH', '/v1/webhook-endpoints/' . rawurlencode($endpointId), $params);
+        return $this->client->request('PATCH', '/v1/webhooks/endpoints/' . rawurlencode($endpointId), $params);
     }
 
     public function disableEndpoint(string $endpointId): array
     {
-        return $this->client->request('POST', '/v1/webhook-endpoints/' . rawurlencode($endpointId) . '/disable');
+        return $this->client->request('POST', '/v1/webhooks/endpoints/' . rawurlencode($endpointId) . '/disable');
     }
 
     public function deleteEndpoint(string $endpointId): array
     {
-        return $this->client->request('DELETE', '/v1/webhook-endpoints/' . rawurlencode($endpointId));
+        return $this->client->request('DELETE', '/v1/webhooks/endpoints/' . rawurlencode($endpointId));
     }
 
     public function listDeliveries(array $query = []): array
     {
         $queryString = http_build_query($query);
-        return $this->client->request('GET', '/v1/webhook-deliveries' . ($queryString ? '?' . $queryString : ''));
+        return $this->client->request('GET', '/v1/webhooks/deliveries' . ($queryString ? '?' . $queryString : ''));
     }
 
     public function getDelivery(string $deliveryId): array
     {
-        return $this->client->request('GET', '/v1/webhook-deliveries/' . rawurlencode($deliveryId));
+        return $this->client->request('GET', '/v1/webhooks/deliveries/' . rawurlencode($deliveryId));
     }
 
     public function retryDelivery(string $deliveryId): array
     {
-        return $this->client->request('POST', '/v1/webhook-deliveries/' . rawurlencode($deliveryId) . '/retry');
+        return $this->client->request('POST', '/v1/webhooks/deliveries/' . rawurlencode($deliveryId) . '/retry');
     }
 
     /**

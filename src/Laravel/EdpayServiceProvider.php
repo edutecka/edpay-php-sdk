@@ -3,6 +3,7 @@
 namespace EDPay\Laravel;
 
 use EDPay\EDPayClient;
+use EDPay\Laravel\DatabasePaymentStore;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -23,13 +24,15 @@ class EdpayServiceProvider extends ServiceProvider
                 throw new \InvalidArgumentException('EDPay partner API requires both EDPAY_PUBLIC_KEY and EDPAY_PRIVATE_KEY to be configured.');
             }
 
-            return new EDPayClient(
+            $client = new EDPayClient(
                 $publicKey,
                 $privateKey,
                 $config['environment'] ?? 'sandbox',
                 $config['base_uri'] ?? null,
                 (int) ($config['timeout'] ?? 60)
             );
+            $client->setLocalPaymentStore(new DatabasePaymentStore());
+            return $client;
         });
 
         $this->app->alias('edpay', EDPayClient::class);

@@ -18,7 +18,7 @@ class SubscriptionResource
      */
     public function create(array $params, string $idempotencyKey): array
     {
-        return $this->client->request('POST', '/v1/invoice-series', $params, $idempotencyKey);
+        return $this->client->request('POST', '/v1/invoices/series', $params, $idempotencyKey);
     }
 
     /**
@@ -27,7 +27,7 @@ class SubscriptionResource
     public function list(array $query = []): array
     {
         $queryString = http_build_query($query);
-        $path = '/v1/invoice-series' . ($queryString ? '?' . $queryString : '');
+        $path = '/v1/invoices/series' . ($queryString ? '?' . $queryString : '');
         return $this->client->request('GET', $path);
     }
 
@@ -36,7 +36,7 @@ class SubscriptionResource
      */
     public function pause(string $seriesId): array
     {
-        return $this->client->request('POST', '/v1/invoice-series/' . rawurlencode($seriesId) . '/pause');
+        return $this->client->request('POST', '/v1/invoices/series/' . rawurlencode($seriesId) . '/pause');
     }
 
     /**
@@ -44,6 +44,6 @@ class SubscriptionResource
      */
     public function resume(string $seriesId): array
     {
-        return $this->client->request('POST', '/v1/invoice-series/' . rawurlencode($seriesId) . '/resume');
+        return $this->client->request('POST', '/v1/invoices/series/' . rawurlencode($seriesId) . '/resume');
     }
 }

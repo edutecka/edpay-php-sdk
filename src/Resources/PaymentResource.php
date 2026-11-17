@@ -3,65 +3,90 @@
 namespace EDPay\Resources;
 
 use EDPay\EDPayClient;
+use EDPay\LocalPaymentStore;
 
 class PaymentResource
 {
     protected EDPayClient $client;
 
-    public function __construct(EDPayClient $client)
-    {
-        $this->client = $client;
-    }
+    public function __construct(EDPayClient $client) { $this->client = $client; }
 
-    /**
-     * Create a payment intent in EDPay.
-     */
+    /** Create only the payment parent. Select a checkout mode with one of the child methods. */
     public function create(array $params, string $idempotencyKey): array
     {
-        return $this->client->request('POST', '/v1/payments', $params, $idempotencyKey);
+        $payment = $this->client->request('POST', '/v1/payments', $params, $idempotencyKey);
+        $this->client->saveLocalPayment($payment);
+        return $payment;
     }
 
-    /**
-     * Retrieve payment details by ID.
-     */
-    public function get(string $paymentId): array
+    /** Start a server-to-server payment method for an existing payment. */
+    public function privateCheckout(string $paymentId, array $params, string $idempotencyKey): array
     {
-        return $this->client->request('GET', '/v1/payments/' . rawurlencode($paymentId));
+        return $this->client->request('POST', '/v1/payments/' . rawurlencode($paymentId) . '/private-checkout', $params, $idempotencyKey);
     }
 
-    /**
-     * List payments with optional filters.
-     */
+    public function publicCheckout(string $paymentId, array $params, string $idempotencyKey): array
+    {
+        return $this->client->request('POST', '/v1/payments/' . rawurlencode($paymentId) . '/public-checkout', $params, $idempotencyKey);
+    }
+
+    public function linkCheckout(string $paymentId, array $params, string $idempotencyKey): array
+    {
+        return $this->client->request('POST', '/v1/payments/' . rawurlencode($paymentId) . '/link-checkout', $params, $idempotencyKey);
+    }
+
+    /** Lists executions with their checkout mode and sessions with no submission. */
+    public function listCheckouts(string $paymentId): array
+    {
+        return $this->client->request('GET', '/v1/payments/' . rawurlencode($paymentId) . '/checkouts');
+    }
+
+    public function getCheckout(string $token): array
+    {
+        return $this->client->request('GET', '/v1/payments/checkouts/' . rawurlencode($token), [], null, false);
+    }
+
+    public function submitCheckoutPayment(string $token, array $params, string $idempotencyKey): array
+    {
+        return $this->client->request('POST', '/v1/payments/checkouts/' . rawurlencode($token) . '/payment', $params, $idempotencyKey, false);
+    }
+
+    public function retrieveCheckoutPayment(string $token): array
+    {
+        return $this->client->request('GET', '/v1/payments/checkouts/' . rawurlencode($token) . '/payment', [], null, false);
+    }
+
+    public function framePolicy(string $token): array
+    {
+        return $this->client->request('GET', '/v1/payments/checkouts/' . rawurlencode($token) . '/frame-policy', [], null, false);
+    }
+
+    /** Find a locally persisted payment by merchant reference. This method never makes an HTTP request. */
+    public function get(string $reference): array
+    {
+        $payment = $this->client->findLocalPaymentByReference($reference);
+        if ($payment === null) {
+            throw new \RuntimeException('Payment reference was not found in the local EDPay store.');
+        }
+        return $payment;
+    }
+
+    /** Retrieve the current payment state from EDPay by payment ID. */
+    public function retrieve(string $paymentId): array
+    {
+        $payment = $this->client->request('GET', '/v1/payments/' . rawurlencode($paymentId));
+        $this->client->saveLocalPayment($payment);
+        return $payment;
+    }
+
     public function list(array $query = []): array
     {
         $queryString = http_build_query($query);
-        $path = '/v1/payments' . ($queryString ? '?' . $queryString : '');
-        return $this->client->request('GET', $path);
+        return $this->client->request('GET', '/v1/payments' . ($queryString ? '?' . $queryString : ''));
     }
 
-    /**
-     * Retrieve a payment's lifecycle event history.
-     */
     public function events(string $paymentId): array
     {
         return $this->client->request('GET', '/v1/payments/' . rawurlencode($paymentId) . '/events');
-    }
-
-    /** Retrieve sanitized dispatch attempt summaries for a payment. */
-    public function attempts(string $paymentId): array
-    {
-        return $this->client->request('GET', '/v1/payments/' . rawurlencode($paymentId) . '/attempts');
-    }
-
-    /** Legacy alias for creating a payment intent through /v1/payment-checkout. */
-    public function createCheckout(array $params, string $idempotencyKey): array
-    {
-        return $this->client->request('POST', '/v1/payment-checkout', $params, $idempotencyKey);
-    }
-
-    /** Start a child method attempt on the same payment after the latest attempt definitively failed. */
-    public function createAttempt(string $paymentId, array $params, string $idempotencyKey): array
-    {
-        return $this->client->request('POST', '/v1/payments/' . rawurlencode($paymentId) . '/attempts', $params, $idempotencyKey);
     }
 }

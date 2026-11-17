@@ -17,8 +17,8 @@
   - Add automatic idempotency handling.
 - [ ] **Phase 2: Core API Resources**
   - `Payments`: create a payment, retrieve its status, and cancel it.
-  - `Checkout`: create hosted checkout sessions and retrieve their details.
-  - `PaymentLinks`: create and deactivate payment links.
+  - `Payments`: create a payment parent and select hosted, private, or link checkout as child operations.
+  - Standalone payment-link resources are replaced by `Payments::linkCheckout`.
   - `Invoices`: manage invoices with notes and discounts.
   - `Customers`: manage customers and tax identification.
   - `Wallets`: retrieve balances and statements.
