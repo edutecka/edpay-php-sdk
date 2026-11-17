@@ -34,7 +34,6 @@ use EDPay\EDPayClient;
 $client = new EDPayClient(
     getenv('EDPAY_PUBLIC_KEY'),
     getenv('EDPAY_PRIVATE_KEY'),
-    'sandbox',
     getenv('EDPAY_API_URL') ?: EDPayClient::DEFAULT_BASE_URI
 );
 
@@ -75,7 +74,6 @@ Set server-side values in the application environment (do not commit `.env`):
 ```dotenv
 EDPAY_PUBLIC_KEY=pk_test_...
 EDPAY_PRIVATE_KEY=sk_test_...
-EDPAY_ENVIRONMENT=sandbox
 EDPAY_WEBHOOK_SECRET=whsec_...
 ```
 
@@ -156,8 +154,8 @@ Each row tells you what the call does and when to use it. Partner calls use the 
 | Webhook signature verification | `webhooks()->constructEvent` | `Local helper` | Checks the Payment-Signature HMAC and timestamp against the unmodified request body. Verify the signature before parsing or acting on an incoming webhook. Use the raw bytes and keep the secret server-side. |
 | Client utilities | `$client->request` | `Raw API request` | Sends a request to an API path without a dedicated resource wrapper. The authenticated argument controls whether partner key headers are sent. Use only for a supported endpoint that has no SDK method; keep private keys on the server and apply the endpoint's scope and idempotency rules. |
 | Client utilities | `$client->getPublicKey()` | `Local helper` | Returns the configured public key. Read the public key for display or browser configuration; never expose the private key. |
-| Client utilities | `$client->getEnvironment()` | `Local helper` | Returns the client environment name. Show or log which API-key environment this client is configured to use. |
-| Client utilities | `$client->isProduction()` | `Local helper` | Returns whether the configured environment is production. Apply environment-specific display or operational rules. |
+| Client utilities | `$client->getEnvironment()` | `Local helper` | Reports sandbox or production from the matched public-key prefix; it does not change the API host. |
+| Client utilities | `$client->isProduction()` | `Local helper` | Returns whether the public key starts with pk_live_. Use it for display or operational rules without choosing a separate endpoint. |
 
 Resource calls return decoded PHP arrays. `EDPayException` includes status, response body, request ID, and retry-after metadata.
 ## Format and validate a phone contact

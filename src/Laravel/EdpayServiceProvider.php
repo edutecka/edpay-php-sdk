@@ -27,7 +27,6 @@ class EdpayServiceProvider extends ServiceProvider
             $client = new EDPayClient(
                 $publicKey,
                 $privateKey,
-                $config['environment'] ?? 'sandbox',
                 $config['base_uri'] ?? null,
                 (int) ($config['timeout'] ?? 60)
             );

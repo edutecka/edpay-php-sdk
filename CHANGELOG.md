@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.1
+
+- Remove the configurable SDK environment; matching API key prefixes determine sandbox or production access.
+- Keep requests on the single EDPay API host and update Composer metadata to 1.6.1.
+
 ## 1.6.0
 
 - Add the unified payment parent and child checkout operations for private API, hosted checkout, and link checkout.

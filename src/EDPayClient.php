@@ -15,12 +15,11 @@ use EDPay\Resources\PublicResource;
 
 class EDPayClient
 {
-    public const VERSION = '1.6.0';
+    public const VERSION = '1.6.1';
     public const DEFAULT_BASE_URI = 'https://api-pay.edutecka.com';
 
     protected string $publicKey;
     protected string $privateKey;
-    protected string $environment;
     protected string $baseUri;
     protected int $timeout;
 
@@ -37,13 +36,11 @@ class EDPayClient
     public function __construct(
         string $publicKey,
         string $privateKey,
-        string $environment = 'sandbox',
         ?string $baseUri = null,
         int $timeout = 60
     ) {
         $this->publicKey = trim($publicKey);
         $this->privateKey = trim($privateKey);
-        $this->environment = strtolower(trim($environment));
         $publicMode = preg_match('/^pk_(test|live)_[a-fA-F0-9]{24}$/D', $this->publicKey, $publicMatch) ? $publicMatch[1] : null;
         $privateMode = preg_match('/^sk_(test|live)_[a-fA-F0-9]{64}$/D', $this->privateKey, $privateMatch) ? $privateMatch[1] : null;
         if ($publicMode === null || $privateMode === null) {
@@ -130,12 +127,12 @@ class EDPayClient
 
     public function getEnvironment(): string
     {
-        return $this->environment;
+        return substr($this->publicKey, 0, 8) === 'pk_live_' ? 'production' : 'sandbox';
     }
 
     public function isProduction(): bool
     {
-        return $this->environment === 'production';
+        return substr($this->publicKey, 0, 8) === 'pk_live_';
     }
 
     /**
