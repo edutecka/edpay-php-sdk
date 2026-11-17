@@ -15,7 +15,7 @@ use EDPay\Resources\PublicResource;
 
 class EDPayClient
 {
-    public const VERSION = '1.5.1';
+    public const VERSION = '1.6.0';
     public const DEFAULT_BASE_URI = 'https://api-pay.edutecka.com';
 
     protected string $publicKey;

@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.5.1 · pre-release updates
+## 1.6.0
 
 - Add the unified payment parent and child checkout operations for private API, hosted checkout, and link checkout.
 - Add opaque-token buyer routes and checkout history on the parent payment.
