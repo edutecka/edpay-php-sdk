@@ -16,9 +16,8 @@
   - Configure the base URL, timeouts, and headers (`X-EDPay-Public-Key`, `X-EDPay-Private-Key`).
   - Add automatic idempotency handling.
 - [ ] **Phase 2: Core API Resources**
-  - `Payments`: create a payment, retrieve its status, and cancel it.
-  - `Payments`: create a payment parent and select hosted, private, or link checkout as child operations.
-  - Standalone payment-link resources are replaced by `Payments::linkCheckout`.
+  - `Payments`: create a payment, retrieve its status, and select private, hosted, or link checkout as child operations.
+  - `Payments::privateCheckout`, `Payments::publicCheckout`, and `Payments::linkCheckout` all use the existing payment ID.
   - `Invoices`: manage invoices with notes and discounts.
   - `Customers`: manage customers and tax identification.
   - `Wallets`: retrieve balances and statements.
