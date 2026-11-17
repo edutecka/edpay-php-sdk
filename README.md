@@ -99,6 +99,10 @@ $checkout = $client->payments()->publicCheckout(
 
 Use `listCheckouts($paymentId)` to read private executions, public/link executions, and sessions where no method was submitted; each execution keeps its originating checkout mode. Use `retrieve($paymentId)` to read current remote payment status. In Laravel, `payments()->get($reference)` looks up an already stored payment locally without HTTP; use it to reuse the existing record and avoid creating a duplicate.
 
+### M-Pesa and e-Mola PIN confirmation
+
+For `mpesa` and `emola` calls to `privateCheckout`, set a 60-second confirmation window and ask the buyer to approve the phone prompt and enter the PIN. The API returns `202 Accepted` when the execution is queued; it does not wait for PIN entry or confirm payment. Keep the payment pending and wait for a verified webhook or poll `retrieve(paymentId)` / `listCheckouts(paymentId)` for the final status. If no confirmation arrives within 60 seconds, continue reconciliation; do not resubmit while the execution is pending or unknown.
+
 ## Function reference
 
 Each row tells you what the call does and when to use it. Partner calls use the API key pair; public catalog and buyer checkout calls do not. Supply a stable `Idempotency-Key` for writes where required.
