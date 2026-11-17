@@ -14,7 +14,7 @@ The EDPay PHP SDK is a server-side client for the EDPay payment platform. It pro
 From your application's root directory, install the SDK with Composer:
 
 ```bash
-composer require edutecka/edpay-php-sdk
+composer require edutecka/edpay-php-sdk:^1.6.2
 ```
 
 Composer installs the SDK and registers its autoloader. You can then use the `EDPay\EDPayClient` class in your PHP application.
@@ -99,9 +99,9 @@ $checkout = $client->payments()->publicCheckout(
 
 Use `listCheckouts($paymentId)` to read private executions, public/link executions, and sessions where no method was submitted; each execution keeps its originating checkout mode. Use `retrieve($paymentId)` to read current remote payment status. In Laravel, `payments()->get($reference)` looks up an already stored payment locally without HTTP; use it to reuse the existing record and avoid creating a duplicate.
 
-### M-Pesa and e-Mola PIN confirmation
+### Synchronous PIN confirmation
 
-For `method: "mpesa"` or `"emola"`, the provider's 60-second PIN window starts only after the Master delivers the charge. The API's 80-second `private-checkout` deadline starts with the API request, so validation, queueing, and dispatch latency already consume it; it does not wait another 80 seconds after the provider window starts. It returns HTTP `200` with a terminal attempt or `202` if the result is still pending, processing, or unknown when the deadline expires. The SDK transport timeout defaults to 90 seconds; keep a custom timeout above 80 seconds. If the caller disconnects, durable processing continues; configured webhook endpoints receive the event when the payment result is confirmed. You can also query `GET /v1/payments/{id}` and `GET /v1/payments/{id}/checkouts`. Do not resubmit while the attempt is pending or unknown.
+For a method that uses a PIN prompt (currently M-Pesa and e-Mola), the provider's 60-second PIN window starts only after the Master dispatches the charge. The API's 80-second `private-checkout` deadline starts when it receives the request, so validation, queueing, and dispatch latency already consume that time. Other gateway methods can use different authorization flows and timings. The API returns HTTP `200` with a terminal attempt or `202` if the result is still pending, processing, or unknown when the deadline expires. The SDK transport timeout defaults to 90 seconds; keep a custom timeout above 80 seconds. If the caller disconnects, durable processing continues; configured webhook endpoints receive the event when the payment result is confirmed. You can also query `GET /v1/payments/{id}` and `GET /v1/payments/{id}/checkouts`. Do not resubmit while the attempt is pending or unknown.
 
 ## Function reference
 
